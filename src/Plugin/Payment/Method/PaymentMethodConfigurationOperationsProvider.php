@@ -66,10 +66,10 @@ abstract class PaymentMethodConfigurationOperationsProvider implements PluginOpe
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $container->get('entity.manager');
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
 
-    return new static($container->get('string_translation'), $container->get('redirect.destination'), $entity_manager->getStorage('payment_method_configuration'), $entity_manager->getListBuilder('payment_method_configuration'));
+    return new static($container->get('string_translation'), $container->get('redirect.destination'), $entity_type_manager->getStorage('payment_method_configuration'), $entity_type_manager->getListBuilder('payment_method_configuration'));
   }
 
   /**

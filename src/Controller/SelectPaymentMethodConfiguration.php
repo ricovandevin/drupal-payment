@@ -9,7 +9,7 @@ namespace Drupal\payment\Controller;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityAccessControlHandlerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationManagerInterface;
@@ -21,6 +21,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SelectPaymentMethodConfiguration extends ControllerBase {
 
   /**
+   * The payment method configuration access control handler.
+   *
+   * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface
+   */
+  protected $paymentMethodConfigurationAccessControlHandler;
+
+  /**
    * The payment method configuration plugin manager.
    *
    * @var \Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationManagerInterface
@@ -30,13 +37,13 @@ class SelectPaymentMethodConfiguration extends ControllerBase {
   /**
    * Constructs a new instance.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityAccessControlHandlerInterface $payment_method_configuration_access_control_handler
    * @param \Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationManagerInterface $payment_method_configuration_manager
    * @param \Drupal\Core\Session\AccountInterface $current_user
    */
-  public function __construct(EntityManagerInterface $entity_manager, PaymentMethodConfigurationManagerInterface $payment_method_configuration_manager, AccountInterface $current_user) {
+  public function __construct(EntityAccessControlHandlerInterface $payment_method_configuration_access_control_handler, PaymentMethodConfigurationManagerInterface $payment_method_configuration_manager, AccountInterface $current_user) {
     $this->currentUser = $current_user;
-    $this->entityManager = $entity_manager;
+    $this->paymentMethodConfigurationAccessControlHandler = $payment_method_configuration_access_control_handler;
     $this->paymentMethodConfigurationManager = $payment_method_configuration_manager;
   }
 
@@ -44,7 +51,10 @@ class SelectPaymentMethodConfiguration extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.manager'), $container->get('plugin.manager.payment.method_configuration'), $container->get('current_user'));
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
+
+    return new static($entity_type_manager->getAccessControlHandler('payment_method_configuration'), $container->get('plugin.manager.payment.method_configuration'), $container->get('current_user'));
   }
 
   /**
@@ -55,10 +65,9 @@ class SelectPaymentMethodConfiguration extends ControllerBase {
   public function execute() {
     $definitions = $this->paymentMethodConfigurationManager->getDefinitions();
     unset($definitions['payment_unavailable']);
-    $access_controller = $this->entityManager->getAccessControlHandler('payment_method_configuration');
     $items = [];
     foreach ($definitions as $plugin_id => $definition) {
-      $access = $access_controller->createAccess($plugin_id);
+      $access = $this->paymentMethodConfigurationAccessControlHandler->createAccess($plugin_id);
       if ($access) {
         $items[] = [
           'title' => $definition['label'],
@@ -86,10 +95,9 @@ class SelectPaymentMethodConfiguration extends ControllerBase {
   public function access() {
     $definitions = $this->paymentMethodConfigurationManager->getDefinitions();
     unset($definitions['payment_unavailable']);
-    $access_controller = $this->entityManager->getAccessControlHandler('payment_method_configuration');
     $access_result = AccessResult::forbidden();
     foreach (array_keys($definitions) as $plugin_id) {
-      $access_result = $access_controller->createAccess($plugin_id, $this->currentUser, [], TRUE);
+      $access_result = $this->paymentMethodConfigurationAccessControlHandler->createAccess($plugin_id, $this->currentUser, [], TRUE);
       if ($access_result->isAllowed()) {
         return $access_result;
       }

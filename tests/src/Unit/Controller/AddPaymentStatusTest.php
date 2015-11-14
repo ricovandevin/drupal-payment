@@ -8,8 +8,8 @@
 namespace Drupal\Tests\payment\Unit\Controller;
 
 use Drupal\Core\Entity\EntityFormBuilderInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\payment\Controller\AddPaymentStatus;
 use Drupal\payment\Entity\PaymentStatusInterface;
@@ -60,8 +60,8 @@ class AddPaymentStatusTest extends UnitTestCase {
    * @covers ::__construct
    */
   function testCreate() {
-    $entity_manager = $this->getMock(EntityManagerInterface::class);
-    $entity_manager->expects($this->once())
+    $entity_type_manager = $this->getMock(EntityTypeManagerInterface::class);
+    $entity_type_manager->expects($this->once())
       ->method('getStorage')
       ->with('payment_status')
       ->willReturn($this->paymentStatusStorage);
@@ -69,7 +69,7 @@ class AddPaymentStatusTest extends UnitTestCase {
     $container = $this->getMock(ContainerInterface::class);
     $map = [
       ['entity.form_builder', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityFormBuilder],
-      ['entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_manager],
+      ['entity_type.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_type_manager],
     ];
     $container->expects($this->any())
       ->method('get')

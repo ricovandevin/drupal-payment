@@ -9,7 +9,7 @@
 namespace Drupal\Tests\payment_reference\Unit\Plugin\Payment\Type;
 
 use Drupal\Core\Access\AccessResultInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -40,7 +40,7 @@ class PaymentReferenceTest extends UnitTestCase {
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
    */
-  protected $entityManager;
+  protected $entityFieldManager;
 
   /**
    * The payment.
@@ -76,7 +76,7 @@ class PaymentReferenceTest extends UnitTestCase {
   protected function setUp() {
     $this->eventDispatcher = $this->getMock(EventDispatcherInterface::class);
 
-    $this->entityManager = $this->getMock(EntityManagerInterface::class);
+    $this->entityFieldManager = $this->getMock(EntityFieldManagerInterface::class);
 
     $this->urlGenerator = $this->getMock(UrlGeneratorInterface::class);
     $this->urlGenerator->expects($this->any())
@@ -87,7 +87,7 @@ class PaymentReferenceTest extends UnitTestCase {
 
     $this->payment = $this->getMock(PaymentInterface::class);
 
-    $this->sut = new PaymentReference([], 'payment_reference', [], $this->eventDispatcher, $this->urlGenerator, $this->entityManager, $this->stringTranslation);
+    $this->sut = new PaymentReference([], 'payment_reference', [], $this->eventDispatcher, $this->urlGenerator, $this->entityFieldManager, $this->stringTranslation);
     $this->sut->setPayment($this->payment);
   }
 
@@ -98,7 +98,7 @@ class PaymentReferenceTest extends UnitTestCase {
   function testCreate() {
     $container = $this->getMock(ContainerInterface::class);
     $map = array(
-      array('entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityManager),
+      array('entity_field.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityFieldManager),
       array('payment.event_dispatcher', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->eventDispatcher),
       array('string_translation', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->stringTranslation),
       array('url_generator', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->urlGenerator),
@@ -172,7 +172,7 @@ class PaymentReferenceTest extends UnitTestCase {
       $field_name => $field_definition,
     );
 
-    $this->entityManager->expects($this->atLeastOnce())
+    $this->entityFieldManager->expects($this->atLeastOnce())
       ->method('getFieldDefinitions')
       ->with($entity_type_id, $bundle)
       ->willReturn($definitions);
@@ -191,7 +191,7 @@ class PaymentReferenceTest extends UnitTestCase {
     $entity_type_id = $this->randomMachineName();
     $bundle = $this->randomMachineName();
 
-    $this->entityManager->expects($this->atLeastOnce())
+    $this->entityFieldManager->expects($this->atLeastOnce())
       ->method('getFieldDefinitions')
       ->with($entity_type_id, $bundle)
       ->willReturn([]);

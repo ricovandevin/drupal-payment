@@ -11,8 +11,8 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandlerInterface;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityFormInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\payment\Controller\AddPaymentMethodConfiguration;
@@ -45,11 +45,11 @@ class AddPaymentMethodConfigurationTest extends UnitTestCase {
   protected $entityFormBuilder;
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit_Framework_MockObject_MockObject
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The payment method configuration plugin manager.
@@ -87,7 +87,7 @@ class AddPaymentMethodConfigurationTest extends UnitTestCase {
 
     $this->entityFormBuilder = $this->getMock(EntityFormBuilderInterface::class);
 
-    $this->entityManager = $this->getMock(EntityManagerInterface::class);
+    $this->entityTypeManager = $this->getMock(EntityTypeManagerInterface::class);
 
     $this->paymentMethodConfigurationManager = $this->getMock(PaymentMethodConfigurationManagerInterface::class);
 
@@ -97,7 +97,7 @@ class AddPaymentMethodConfigurationTest extends UnitTestCase {
 
     $this->stringTranslation = $this->getStringTranslationStub();
 
-    $this->sut = new AddPaymentMethodConfiguration($this->requestStack, $this->stringTranslation, $this->entityManager, $this->paymentMethodConfigurationManager, $this->entityFormBuilder, $this->currentUser);
+    $this->sut = new AddPaymentMethodConfiguration($this->requestStack, $this->stringTranslation, $this->entityTypeManager, $this->paymentMethodConfigurationManager, $this->entityFormBuilder, $this->currentUser);
   }
 
   /**
@@ -109,7 +109,7 @@ class AddPaymentMethodConfigurationTest extends UnitTestCase {
     $map = [
       ['current_user', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->currentUser],
       ['entity.form_builder', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityFormBuilder],
-      ['entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityManager],
+      ['entity_type.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityTypeManager],
       ['plugin.manager.payment.method_configuration', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->paymentMethodConfigurationManager],
       ['request_stack', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->requestStack],
       ['string_translation', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->stringTranslation],
@@ -137,7 +137,7 @@ class AddPaymentMethodConfigurationTest extends UnitTestCase {
 
     $form = $this->getMock(EntityFormInterface::class);
 
-    $this->entityManager->expects($this->once())
+    $this->entityTypeManager->expects($this->once())
       ->method('getStorage')
       ->with('payment_method_configuration')
       ->willReturn($storage_controller);
@@ -172,7 +172,7 @@ class AddPaymentMethodConfigurationTest extends UnitTestCase {
       ->with($plugin_id, $this->currentUser, [], TRUE)
       ->willReturn(AccessResult::forbidden());
 
-    $this->entityManager->expects($this->exactly(2))
+    $this->entityTypeManager->expects($this->exactly(2))
       ->method('getAccessControlHandler')
       ->with('payment_method_configuration')
       ->willReturn($access_controller);

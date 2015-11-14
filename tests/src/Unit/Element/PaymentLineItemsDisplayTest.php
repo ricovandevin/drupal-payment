@@ -7,8 +7,8 @@
 
 namespace Drupal\Tests\payment\Unit\Element;
 
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\currency\Entity\CurrencyInterface;
 use Drupal\payment\Element\PaymentLineItemsDisplay;
 use Drupal\payment\Entity\PaymentInterface;
@@ -64,15 +64,15 @@ class PaymentLineItemsDisplayTest extends UnitTestCase {
    * @covers ::create
    */
   function testCreate() {
-    $entity_manager = $this->getMock(EntityManagerInterface::class);
-    $entity_manager->expects($this->once())
+    $entity_type_manager = $this->getMock(EntityTypeManagerInterface::class);
+    $entity_type_manager->expects($this->once())
       ->method('getStorage')
       ->with('currency')
       ->willReturn($this->currencyStorage);
 
     $container = $this->getMock(ContainerInterface::class);
     $map = array(
-      array('entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_manager),
+      array('entity_type.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_type_manager),
       array('string_translation', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->stringTranslation),
     );
     $container->expects($this->any())

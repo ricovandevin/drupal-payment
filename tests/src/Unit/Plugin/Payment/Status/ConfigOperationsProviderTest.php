@@ -72,7 +72,7 @@ class ConfigOperationsProviderTest extends UnitTestCase {
     $container = $this->getMock(ContainerInterface::class);
     $container->expects($this->once())
       ->method('get')
-      ->with('entity.manager')
+      ->with('entity_type.manager')
       ->willReturn($entity_manager);
 
     $this->assertInstanceOf(ConfigOperationsProvider::class, ConfigOperationsProvider::create($container));

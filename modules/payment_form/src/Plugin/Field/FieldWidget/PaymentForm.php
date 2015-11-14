@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\payment_form\Plugin\field\widget\PaymentForm.
+ * Contains \Drupal\payment_form\Plugin\Field\FieldWidget\PaymentForm.
  */
 
 namespace Drupal\payment_form\Plugin\Field\FieldWidget;

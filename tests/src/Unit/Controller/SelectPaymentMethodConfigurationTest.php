@@ -9,7 +9,7 @@ namespace Drupal\Tests\payment\Unit\Controller;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandlerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\payment\Controller\SelectPaymentMethodConfiguration;
 use Drupal\payment\Plugin\Payment\MethodConfiguration\PaymentMethodConfigurationManagerInterface;
@@ -31,11 +31,11 @@ class SelectPaymentMethodConfigurationTest extends UnitTestCase {
   protected $currentUser;
 
   /**
-   * The entity manager.
+   * The payment method configuration access control handler.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityAccessControlHandlerInterface|\PHPUnit_Framework_MockObject_MockObject
    */
-  protected $entityManager;
+  protected $paymentMethodConfigurationAccessControlHandler;
 
   /**
    * The payment method configuration manager.
@@ -57,11 +57,11 @@ class SelectPaymentMethodConfigurationTest extends UnitTestCase {
   protected function setUp() {
     $this->currentUser = $this->getMock(AccountInterface::class);
 
-    $this->entityManager = $this->getMock(EntityManagerInterface::class);
+    $this->paymentMethodConfigurationAccessControlHandler = $this->getMock(EntityAccessControlHandlerInterface::class);
 
     $this->paymentMethodConfigurationManager = $this->getMock(PaymentMethodConfigurationManagerInterface::class);
 
-    $this->sut = new SelectPaymentMethodConfiguration($this->entityManager, $this->paymentMethodConfigurationManager, $this->currentUser);
+    $this->sut = new SelectPaymentMethodConfiguration($this->paymentMethodConfigurationAccessControlHandler, $this->paymentMethodConfigurationManager, $this->currentUser);
   }
 
   /**
@@ -69,10 +69,16 @@ class SelectPaymentMethodConfigurationTest extends UnitTestCase {
    * @covers ::__construct
    */
   function testCreate() {
+    $entity_type_manager = $this->getMock(EntityTypeManagerInterface::class);
+    $entity_type_manager->expects($this->atLeastOnce())
+      ->method('getAccessControlHandler')
+      ->with('payment_method_configuration')
+      ->willReturn($this->paymentMethodConfigurationAccessControlHandler);
+
     $container = $this->getMock(ContainerInterface::class);
     $map = [
       ['current_user', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->currentUser],
-      ['entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityManager],
+      ['entity_type.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_type_manager],
       ['plugin.manager.payment.method_configuration', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->paymentMethodConfigurationManager],
     ];
     $container->expects($this->any())
@@ -102,15 +108,9 @@ class SelectPaymentMethodConfigurationTest extends UnitTestCase {
       ->method('getDefinitions')
       ->willReturn($definitions);
 
-    $access_control_handler = $this->getMock(EntityAccessControlHandlerInterface::class);
-    $access_control_handler->expects($this->any())
+    $this->paymentMethodConfigurationAccessControlHandler->expects($this->any())
       ->method('createAccess')
       ->willReturn(TRUE);
-
-    $this->entityManager->expects($this->once())
-      ->method('getAccessControlHandler')
-      ->with('payment_method_configuration')
-      ->willReturn($access_control_handler);
 
     $this->sut->execute();
   }
@@ -134,24 +134,18 @@ class SelectPaymentMethodConfigurationTest extends UnitTestCase {
       ->method('getDefinitions')
       ->willReturn($definitions);
 
-    $access_control_handler = $this->getMock(EntityAccessControlHandlerInterface::class);
-    $access_control_handler->expects($this->at(0))
+    $this->paymentMethodConfigurationAccessControlHandler->expects($this->at(0))
       ->method('createAccess')
       ->with('foo', $this->currentUser, [], TRUE)
       ->willReturn(AccessResult::allowed());
-    $access_control_handler->expects($this->at(1))
+    $this->paymentMethodConfigurationAccessControlHandler->expects($this->at(1))
       ->method('createAccess')
       ->with('foo', $this->currentUser, [], TRUE)
       ->willReturn(AccessResult::forbidden());
-    $access_control_handler->expects($this->at(2))
+    $this->paymentMethodConfigurationAccessControlHandler->expects($this->at(2))
       ->method('createAccess')
       ->with('bar', $this->currentUser, [], TRUE)
       ->willReturn(AccessResult::forbidden());
-
-    $this->entityManager->expects($this->exactly(2))
-      ->method('getAccessControlHandler')
-      ->with('payment_method_configuration')
-      ->willReturn($access_control_handler);
 
     $this->assertTrue($this->sut->access()->isAllowed());
     $this->assertFalse($this->sut->access()->isAllowed());

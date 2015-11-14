@@ -7,7 +7,7 @@
 namespace Drupal\payment_reference\Plugin\Payment\Type;
 
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -31,11 +31,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PaymentReference extends PaymentTypeBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The entity manager.
+   * The entity field manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
-  protected $entityManager;
+  protected $entityFieldManager;
 
   /**
    * The URL generator.
@@ -57,16 +57,16 @@ class PaymentReference extends PaymentTypeBase implements ContainerFactoryPlugin
    *   The event dispatcher.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
    *   The URL generator.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translator.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EventDispatcherInterface $event_dispatcher, UrlGeneratorInterface $url_generator, EntityManagerInterface $entity_manager, TranslationInterface $string_translation) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EventDispatcherInterface $event_dispatcher, UrlGeneratorInterface $url_generator, EntityFieldManagerInterface $entity_field_manager, TranslationInterface $string_translation) {
     $configuration += $this->defaultConfiguration();
     parent::__construct($configuration, $plugin_id, $plugin_definition, $event_dispatcher);
     $this->urlGenerator = $url_generator;
-    $this->entityManager = $entity_manager;
+    $this->entityFieldManager = $entity_field_manager;
     $this->stringTranslation = $string_translation;
   }
 
@@ -80,7 +80,7 @@ class PaymentReference extends PaymentTypeBase implements ContainerFactoryPlugin
       $plugin_definition,
       $container->get('payment.event_dispatcher'),
       $container->get('url_generator'),
-      $container->get('entity.manager'),
+      $container->get('entity_field.manager'),
       $container->get('string_translation')
     );
   }
@@ -118,7 +118,7 @@ class PaymentReference extends PaymentTypeBase implements ContainerFactoryPlugin
    * {@inheritdoc}
    */
   public function getPaymentDescription() {
-    $field_definitions = $this->entityManager->getFieldDefinitions($this->getEntityTypeId(), $this->getBundle());
+    $field_definitions = $this->entityFieldManager->getFieldDefinitions($this->getEntityTypeId(), $this->getBundle());
 
     return isset($field_definitions[$this->getFieldName()]) ? $field_definitions[$this->getFieldName()]->getLabel() : new TranslationWrapper('Unavailable');
   }

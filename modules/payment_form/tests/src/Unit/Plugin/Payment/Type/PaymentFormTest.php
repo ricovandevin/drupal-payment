@@ -9,7 +9,7 @@
 namespace Drupal\Tests\payment_form\Unit\Plugin\Payment\Type;
 
 use Drupal\Core\Access\AccessResultInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslationWrapper;
@@ -32,7 +32,7 @@ class PaymentFormTest extends UnitTestCase {
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
    */
-  protected $entityManager;
+  protected $entityFieldManager;
 
   /**
    * The event dispatcher.
@@ -66,13 +66,13 @@ class PaymentFormTest extends UnitTestCase {
    * {@inheritdoc}
    */
   protected function setUp() {
-    $this->entityManager = $this->getMock(EntityManagerInterface::class);
+    $this->entityFieldManager = $this->getMock(EntityFieldManagerInterface::class);
 
     $this->eventDispatcher = $this->getMock(EventDispatcherInterface::class);
 
     $this->stringTranslation = $this->getStringTranslationStub();
 
-    $this->sut = new PaymentForm([], 'payment_form', [], $this->eventDispatcher, $this->entityManager, $this->stringTranslation);
+    $this->sut = new PaymentForm([], 'payment_form', [], $this->eventDispatcher, $this->entityFieldManager, $this->stringTranslation);
 
     $this->payment = $this->getMock(PaymentInterface::class);
 
@@ -86,7 +86,7 @@ class PaymentFormTest extends UnitTestCase {
   function testCreate() {
     $container = $this->getMock(ContainerInterface::class);
     $map = [
-      ['entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityManager],
+      ['entity_field.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->entityFieldManager],
       ['payment.event_dispatcher', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->eventDispatcher],
       ['string_translation', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->stringTranslation],
     ];
@@ -152,7 +152,7 @@ class PaymentFormTest extends UnitTestCase {
       $field_name => $field_definition,
     ];
 
-    $this->entityManager->expects($this->atLeastOnce())
+    $this->entityFieldManager->expects($this->atLeastOnce())
       ->method('getFieldDefinitions')
       ->with($entity_type_id, $bundle)
       ->willReturn($definitions);
@@ -171,7 +171,7 @@ class PaymentFormTest extends UnitTestCase {
     $entity_type_id = $this->randomMachineName();
     $bundle = $this->randomMachineName();
 
-    $this->entityManager->expects($this->atLeastOnce())
+    $this->entityFieldManager->expects($this->atLeastOnce())
       ->method('getFieldDefinitions')
       ->with($entity_type_id, $bundle)
       ->willReturn([]);

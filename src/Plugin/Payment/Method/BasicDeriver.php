@@ -46,10 +46,10 @@ class BasicDeriver extends DeriverBase implements ContainerDeriverInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, $base_plugin_id) {
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $container->get('entity.manager');
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
 
-    return new static($entity_manager->getStorage('payment_method_configuration'), $container->get('plugin.manager.payment.method_configuration'));
+    return new static($entity_type_manager->getStorage('payment_method_configuration'), $container->get('plugin.manager.payment.method_configuration'));
   }
 
   /**

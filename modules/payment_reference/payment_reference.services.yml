@@ -1,7 +1,7 @@
 services:
   payment_reference.payment_factory:
     class: Drupal\payment_reference\PaymentFactory
-    arguments: ['@entity.manager', '@plugin.manager.payment.line_item']
+    arguments: ['@entity_type.manager', '@plugin.manager.payment.line_item']
   payment_reference.queue:
     arguments: ['payment_reference', '@database', '@payment.event_dispatcher', '@plugin.manager.payment.status']
     class: Drupal\payment\DatabaseQueue

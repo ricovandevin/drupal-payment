@@ -7,7 +7,7 @@
 namespace Drupal\payment_form\Plugin\Payment\Type;
 
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -30,11 +30,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PaymentForm extends PaymentTypeBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The entity manager.
+   * The entity field manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
-  protected $entityManager;
+  protected $entityFieldManager;
 
   /**
    * Constructs a new instance.
@@ -47,14 +47,14 @@ class PaymentForm extends PaymentTypeBase implements ContainerFactoryPluginInter
    *   The plugin implementation definition.
    * @param \Drupal\payment\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity manager.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translator.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EventDispatcherInterface $event_dispatcher, EntityManagerInterface $entity_manager, TranslationInterface $string_translation) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EventDispatcherInterface $event_dispatcher, EntityFieldManagerInterface $entity_field_manager, TranslationInterface $string_translation) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $event_dispatcher);
-    $this->entityManager = $entity_manager;
+    $this->entityFieldManager = $entity_field_manager;
     $this->stringTranslation = $string_translation;
   }
 
@@ -67,7 +67,7 @@ class PaymentForm extends PaymentTypeBase implements ContainerFactoryPluginInter
       $plugin_id,
       $plugin_definition,
       $container->get('payment.event_dispatcher'),
-      $container->get('entity.manager'),
+      $container->get('entity_field.manager'),
       $container->get('string_translation')
     );
   }
@@ -102,7 +102,7 @@ class PaymentForm extends PaymentTypeBase implements ContainerFactoryPluginInter
    * {@inheritdoc}
    */
   public function getPaymentDescription() {
-    $field_definitions = $this->entityManager->getFieldDefinitions($this->getEntityTypeId(), $this->getBundle());
+    $field_definitions = $this->entityFieldManager->getFieldDefinitions($this->getEntityTypeId(), $this->getBundle());
 
     return isset($field_definitions[$this->getFieldName()]) ? $field_definitions[$this->getFieldName()]->getLabel() : new TranslationWrapper('Unavailable');
   }

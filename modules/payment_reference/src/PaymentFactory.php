@@ -7,7 +7,7 @@
 
 namespace Drupal\payment_reference;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\payment\Plugin\Payment\LineItem\PaymentLineItemManagerInterface;
 
@@ -17,11 +17,11 @@ use Drupal\payment\Plugin\Payment\LineItem\PaymentLineItemManagerInterface;
 class PaymentFactory implements PaymentFactoryInterface {
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The payment line item manager.
@@ -33,13 +33,13 @@ class PaymentFactory implements PaymentFactoryInterface {
   /**
    * Constructs a new instance.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\payment\Plugin\Payment\LineItem\PaymentLineItemManagerInterface $payment_line_item_manager
    *   The payment line item manager.
    */
-  public function __construct(EntityManagerInterface $entity_manager, PaymentLineItemManagerInterface $payment_line_item_manager) {
-    $this->entityManager = $entity_manager;
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, PaymentLineItemManagerInterface $payment_line_item_manager) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->paymentLineItemManager = $payment_line_item_manager;
   }
 
@@ -48,7 +48,7 @@ class PaymentFactory implements PaymentFactoryInterface {
    */
   public function createPayment(FieldDefinitionInterface $field_definition) {
     /** @var \Drupal\payment\Entity\PaymentInterface $payment */
-    $payment = $this->entityManager
+    $payment = $this->entityTypeManager
       ->getStorage('payment')
       ->create([
         'bundle' => 'payment_reference',

@@ -8,8 +8,8 @@
 namespace Drupal\Tests\payment\Unit\Plugin\Payment\Method;
 
 use Drupal\Core\Entity\EntityListBuilderInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\payment\Entity\PaymentMethodConfigurationInterface;
 use Drupal\payment\Plugin\Payment\Method\PaymentMethodConfigurationOperationsProvider;
@@ -80,19 +80,19 @@ class PaymentMethodConfigurationOperationsProviderTest extends UnitTestCase {
    * @covers ::__construct
    */
   function testCreate() {
-    $entity_manager = $this->getMock(EntityManagerInterface::class);
-    $entity_manager->expects($this->once())
+    $entity_type_manager = $this->getMock(EntityTypeManagerInterface::class);
+    $entity_type_manager->expects($this->once())
       ->method('getListBuilder')
       ->with('payment_method_configuration')
       ->willReturn($this->paymentMethodConfigurationListBuilder);
-    $entity_manager->expects($this->once())
+    $entity_type_manager->expects($this->once())
       ->method('getStorage')
       ->with('payment_method_configuration')
       ->willReturn($this->paymentMethodConfigurationStorage);
 
     $container = $this->getMock(ContainerInterface::class);
     $map = array(
-      array('entity.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_manager),
+      array('entity_type.manager', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $entity_type_manager),
       array('redirect.destination', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->redirectDestination),
       array('string_translation', ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE, $this->stringTranslation),
     );

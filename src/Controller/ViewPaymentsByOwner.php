@@ -48,10 +48,10 @@ class ViewPaymentsByOwner implements ContainerInjectionInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $container->get('entity.manager');
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
 
-    return new static($container->get('current_user'), $entity_manager->getListBuilder('payment'));
+    return new static($container->get('current_user'), $entity_type_manager->getListBuilder('payment'));
   }
 
   /**

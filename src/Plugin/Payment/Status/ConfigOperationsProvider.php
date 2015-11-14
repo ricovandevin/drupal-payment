@@ -47,10 +47,10 @@ class ConfigOperationsProvider implements PluginOperationsProviderInterface, Con
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $container->get('entity.manager');
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
 
-    return new static($entity_manager->getStorage('payment_status'), $entity_manager->getListBuilder('payment_status'));
+    return new static($entity_type_manager->getStorage('payment_status'), $entity_type_manager->getListBuilder('payment_status'));
   }
 
   /**
