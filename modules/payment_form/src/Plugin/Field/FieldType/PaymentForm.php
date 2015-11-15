@@ -6,12 +6,9 @@
 
 namespace Drupal\payment_form\Plugin\Field\FieldType;
 
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\Core\Field\FieldItemBase;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\TypedData\DataDefinition;
 use Drupal\currency\Entity\Currency;
+use Drupal\payment\Plugin\Field\FieldType\PaymentAwarePluginCollectionItem;
 
 /**
  * Defines a payment form field.
@@ -20,12 +17,11 @@ use Drupal\currency\Entity\Currency;
  *   default_widget = "payment_form",
  *   default_formatter = "payment_form",
  *   id = "payment_form",
- *   label = @Translation("Payment form")
+ *   label = @Translation("Payment form"),
+ *   plugin_type_id = "payment_line_item"
  * )
  */
-class PaymentForm extends FieldItemBase {
-
-  use DependencySerializationTrait;
+class PaymentForm extends PaymentAwarePluginCollectionItem {
 
   /**
    * Definitions of the contained properties.
@@ -63,50 +59,4 @@ class PaymentForm extends FieldItemBase {
     return $element;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function schema(FieldStorageDefinitionInterface $field_storage_definition) {
-    $schema = [
-      'columns' => [
-        'plugin_configuration' => [
-          'type' => 'blob',
-          'serialize' => TRUE,
-        ],
-        'plugin_id' => [
-          'type' => 'varchar',
-          'length' => 255,
-        ],
-      ],
-    ];
-
-    return $schema;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_storage_definition) {
-    // @todo Find out how to test this method, as it cannot use t() or
-    //   self::t().
-    $definitions = [];
-    $definitions['plugin_configuration'] = DataDefinition::create('any')
-      ->setLabel(t('Plugin configuration'))
-      ->setRequired(TRUE);
-    $definitions['plugin_id'] = DataDefinition::create('string')
-      ->setLabel(t('Plugin ID'))
-      ->setRequired(TRUE);
-
-    return $definitions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function applyDefaultValue($notify = TRUE) {
-    $this->get('plugin_id')->setValue('', $notify);
-    $this->get('plugin_configuration')->setValue([], $notify);
-
-    return $this;
-  }
 }

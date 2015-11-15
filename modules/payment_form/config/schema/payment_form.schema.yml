@@ -45,12 +45,4 @@ field.field_settings.payment_form:
       label: The currency code
 
 field.value.payment_form:
-  type: config_object
-  label: Payment form field value
-  mapping:
-    plugin_id:
-      label: Plugin ID
-      type: string
-    plugin_configuration:
-      label: Plugin configuration
-      type: plugin.plugin_configuration.line_item.[%parent.plugin_id]
+  type: field.value.plugin:payment_line_item

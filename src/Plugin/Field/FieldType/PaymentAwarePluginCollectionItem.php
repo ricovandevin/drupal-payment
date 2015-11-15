@@ -22,7 +22,8 @@ class PaymentAwarePluginCollectionItem extends PluginCollectionItem {
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     $properties = parent::propertyDefinitions($field_definition);
     $properties['plugin_instance'] = MapDataDefinition::create('payment_aware_plugin_instance')
-      ->setLabel(t('Plugin instance'));
+      ->setLabel(t('Plugin instance'))
+      ->setComputed(TRUE);
 
     return $properties;
   }
