@@ -30,8 +30,8 @@ class PaymentReferenceElement implements FormInterface {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $key = 'payment_reference_element_prototype_payment';
     if ($form_state->has($key)) {
+      /** @var \Drupal\payment\Entity\PaymentInterface $prototype_payment */
       $prototype_payment = $form_state->get($key);
-      /** @var \Drupal\payment_reference\Plugin\Payment\Type\PaymentReference $payment_type */
       $payment_type = $prototype_payment->getPaymentType();
     }
     else {

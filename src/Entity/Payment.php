@@ -218,11 +218,18 @@ class Payment extends ContentEntityBase implements PaymentInterface {
    * {@inheritdoc}
    */
   public function setPaymentStatuses(array $payment_statuses) {
-    $this->get('payment_statuses')->applyDefaultValue();
+    $payment_status_list = $this->get('payment_statuses');
+
+    // Remove all existing field items.
+    foreach ($payment_status_list as $index => $payment_status) {
+      $payment_status_list->removeItem($index);
+    }
+
+    // Set each individual new status.
     /** @var \Drupal\payment\Plugin\Payment\Status\PaymentStatusInterface[] $payment_statuses */
     foreach ($payment_statuses as $payment_status) {
       $payment_status->setPayment($this);
-      $this->get('payment_statuses')->appendItem($payment_status, FALSE);
+      $payment_status_list->appendItem($payment_status);
     }
 
     return $this;
